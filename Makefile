@@ -1,4 +1,4 @@
-.PHONY: help init init-android init-react init-node validate check resolve clean
+.PHONY: help init specialize validate check resolve clean
 
 # Colors for output
 BLUE := \033[0;34m
@@ -10,70 +10,74 @@ NC := \033[0m # No Color
 # Default target
 help:
 	@echo "$(BLUE)╔════════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(BLUE)║          Base-SDD — Sistema de Decisão Distribuído         ║$(NC)"
+	@echo "$(BLUE)║     Base-SDD — Specification Driven Development            ║$(NC)"
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)"
 	@echo ""
-	@echo "$(GREEN)Targets disponíveis:$(NC)"
+	@echo "$(GREEN)Workflow (Dois Passos):$(NC)"
 	@echo ""
-	@echo "  $(YELLOW)make init-android$(NC)   — Criar novo contexto Android (Kotlin + Compose)"
-	@echo "  $(YELLOW)make init-react$(NC)     — Criar novo contexto React (TypeScript + Redux)"
-	@echo "  $(YELLOW)make init-node$(NC)      — Criar novo contexto Node.js (TypeScript + Express)"
-	@echo "  $(YELLOW)make init$(NC)           — Assistente interativo para criar contexto"
+	@echo "  $(YELLOW)Passo 1 — Inicialização Rápida:$(NC)"
+	@echo "    $$ make init"
 	@echo ""
-	@echo "  $(YELLOW)make validate [DIR=.]$(NC)    — Validar configuração YAML"
-	@echo "  $(YELLOW)make check [DIR=.]$(NC)       — Verificar integridade de contexto"
-	@echo "  $(YELLOW)make resolve [DIR=.]$(NC)     — Resolver herança (merge base + contexto)"
+	@echo "  $(YELLOW)Passo 2 — Especialização (Tecnologia):$(NC)"
+	@echo "    $$ cd <projeto>"
+	@echo "    $$ make specialize TECH=react"
+	@echo "           # ou: node, android, flutter, custom"
 	@echo ""
-	@echo "  $(YELLOW)make clean$(NC)           — Remover arquivos gerados (.sdd-resolved/)"
-	@echo "  $(YELLOW)make help$(NC)            — Mostrar esta mensagem"
+	@echo "$(GREEN)Comandos Disponíveis:$(NC)"
 	@echo ""
-	@echo "$(GREEN)Exemplos de uso:$(NC)"
+	@echo "  $(YELLOW)make init$(NC)                    — Criar novo contexto SDD (genérico)"
+	@echo "  $(YELLOW)make specialize TECH=<type>$(NC)  — Especializar para tecnologia"
+	@echo "  $(YELLOW)make validate [DIR=.]$(NC)       — Validar sdd-config.yaml"
+	@echo "  $(YELLOW)make check [DIR=.]$(NC)          — Verificar integridade .sdd/"
+	@echo "  $(YELLOW)make resolve [DIR=.]$(NC)        — Resolver herança (merge base)"
+	@echo "  $(YELLOW)make clean [DIR=.]$(NC)          — Remover .sdd-resolved/"
 	@echo ""
-	@echo "  $$ make init-react               # (prompt será pedido nome do projeto)"
-	@echo "  $$ make init-android             # (prompt será pedido nome do projeto)"
-	@echo ""
-	@echo "$(YELLOW)Estrutura de diretórios esperada:$(NC)"
+	@echo "$(YELLOW)Estrutura de Diretórios:$(NC)"
 	@echo "  base-sdd/                        ← Clone do GitHub"
 	@echo "  ├── Makefile"
 	@echo "  ├── scripts/"
-	@echo "  │   ├── init-context.sh"
-	@echo "  │   ├── validate-config.py"
-	@echo "  │   ├── check-integrity.py"
-	@echo "  │   └── resolve-context.py"
-	@echo "  └── base-sdd/                    ← Estrutura base SDD"
+	@echo "  └── base-sdd/                    ← Templates genéricos"
 	@echo ""
-	@echo "Novos projetos SDD são criados $(RED)UMA PASTA ACIMA$(NC) do clone:"
-	@echo "  ../my-project/                   ← Novo contexto criado aqui"
+	@echo "  ../meu-projeto/                  ← Novo projeto (criado acima)"
 	@echo "  ├── .sdd/                        ← Estrutura SDD customizada"
 	@echo "  ├── copilot-instructions.md"
-	@echo "  └── ... (seus arquivos de projeto)"
+	@echo "  └── ... (seu código)"
 	@echo ""
 
-# Initialize with interactive prompt
+# Initialize with interactive prompt (SIMPLE + FAST)
 init:
 	@echo "$(BLUE)╔════════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(BLUE)║          SDD Context Initialization — Interactive          ║$(NC)"
+	@echo "$(BLUE)║      SDD Init — Simples, Rápido, Agnóstico                 ║$(NC)"
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)"
 	@echo ""
 	@bash $(dir $(realpath $(lastword $(MAKEFILE_LIST))))/scripts/init-context.sh
 
-# Initialize Android context with parameter
-init-android:
-	@read -p "$(YELLOW)Context name (e.g., my-android-app): $(NC)" CONTEXT_NAME; \
-	[ -n "$$CONTEXT_NAME" ] && bash $(dir $(realpath $(lastword $(MAKEFILE_LIST))))/scripts/init-context.sh $$CONTEXT_NAME android \
-	|| (echo "$(RED)❌ Nome do contexto é obrigatório$(NC)" && exit 1)
-
-# Initialize React context with parameter
-init-react:
-	@read -p "$(YELLOW)Context name (e.g., my-react-app): $(NC)" CONTEXT_NAME; \
-	[ -n "$$CONTEXT_NAME" ] && bash $(dir $(realpath $(lastword $(MAKEFILE_LIST))))/scripts/init-context.sh $$CONTEXT_NAME react \
-	|| (echo "$(RED)❌ Nome do contexto é obrigatório$(NC)" && exit 1)
-
-# Initialize Node.js context with parameter
-init-node:
-	@read -p "$(YELLOW)Context name (e.g., my-api): $(NC)" CONTEXT_NAME; \
-	[ -n "$$CONTEXT_NAME" ] && bash $(dir $(realpath $(lastword $(MAKEFILE_LIST))))/scripts/init-context.sh $$CONTEXT_NAME node \
-	|| (echo "$(RED)❌ Nome do contexto é obrigatório$(NC)" && exit 1)
+# Specialize for specific technology
+specialize:
+	@if [ -z "$(TECH)" ]; then \
+		echo "$(RED)❌ TECH é obrigatória. Use: make specialize TECH=react$(NC)"; \
+		echo "   Tecnologias suportadas: react, node, android, flutter, custom"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)╔════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(BLUE)║        SDD Specialization — Tech: $(TECH)$(NC)"
+	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@echo "$(YELLOW)⚠️  Especialização automatizada ainda não implementada.$(NC)"
+	@echo ""
+	@echo "$(GREEN)Próximos passos (manual):$(NC)"
+	@echo ""
+	@echo "  1. Abrir .sdd/specialist-base.md (cópia de base-sdd/agents/specialist-base.md)"
+	@echo "  2. Seguir instruções para especializar:"
+	@echo "     - Editar sdd-config.yaml com tech stack específico"
+	@echo "     - Remover tags [ESPECIALIZAÇÃO] dos agentes"
+	@echo "     - Customizar skills para $(TECH)"
+	@echo "     - Criar docs tech-specific em .sdd/docs/"
+	@echo "     - Gerar .sdd/README-specialization.md"
+	@echo ""
+	@echo "  3. Ou usar o agente Specialist (quando integrado com Copilot):"
+	@echo "     copilot /specialize $(TECH)"
+	@echo ""
 
 # Validate context configuration
 validate:

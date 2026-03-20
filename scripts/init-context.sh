@@ -1,8 +1,10 @@
 #!/bin/bash
-# init-context.sh — Wizard para criar novo contexto SDD
+# init-context.sh — Inicialização SIMPLES e RÁPIDA de novo contexto SDD
+# Usa estrutura genérica base. Especialização fica para um agente posterior.
+# 
 # Uso:
-#   ./init-context.sh                    (interativo)
-#   ./init-context.sh my-context react   (direto)
+#   ./init-context.sh my-project                    (interativo)
+#   ./init-context.sh my-project "My Project Desc"  (direto)
 
 set -e
 
@@ -29,81 +31,58 @@ if [ ! -d "$BASE_SDD_DIR/agents" ]; then
 fi
 
 # Argumentos ou interativo
-if [ $# -ge 2 ]; then
+if [ $# -ge 1 ]; then
     CONTEXT_NAME=$1
-    STACK=$2
+    CONTEXT_DESC=${2:-"Projeto $CONTEXT_NAME"}
 else
-    log_info "=== Init Context Wizard ==="
+    log_info "=== SDD Init (Simples e Rápido) ==="
     echo ""
-    read -p "Context name (e.g., my-react-app): " CONTEXT_NAME
-    read -p "Stack (android|react|node|custom): " STACK
+    read -p "Nome do projeto (ex: meu-app): " CONTEXT_NAME
+    read -p "Descrição breve (ex: Aplicação de tarefas): " CONTEXT_DESC
 fi
 
-if [ -z "$CONTEXT_NAME" ] || [ -z "$STACK" ]; then
-    log_error "Context name e Stack são obrigatórios"
+# Validar entrada
+if [ -z "$CONTEXT_NAME" ]; then
+    log_error "Nome do projeto é obrigatório"
     exit 1
 fi
 
-# Validar nome
 if [[ ! "$CONTEXT_NAME" =~ ^[a-z0-9_-]+$ ]]; then
-    log_error "Context name inválido. Use: a-z, 0-9, _, -"
+    log_error "Nome inválido. Use: a-z, 0-9, _, -"
     exit 1
 fi
 
-# Validar stack
-case "$STACK" in
-    android|react|node|custom)
-        log_ok "Stack: $STACK"
-        ;;
-    *)
-        log_error "Stack desconhecido. Use: android|react|node|custom"
-        exit 1
-        ;;
-esac
-
-# Criar diretório NO PARENT (uma pasta acima da raiz do projeto)
+# Criar diretório (uma pasta acima da raiz do projeto SDD)
 PARENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 CONTEXT_DIR="$PARENT_DIR/$CONTEXT_NAME"
 
-if [ -d "$CONTEXT_DIR" ]; then
-    log_error "Contexto $CONTEXT_NAME já existe em $CONTEXT_DIR"
+if [ -d "$CONTEXT_DIR/.sdd" ]; then
+    log_error "Contexto SDD já existe em $CONTEXT_DIR/.sdd"
     exit 1
 fi
 
-log_info "Criando contexto: $CONTEXT_NAME ($STACK)"
+# Criar estrutura de diretórios
+log_info "Criando estrutura para: $CONTEXT_NAME"
 mkdir -p "$CONTEXT_DIR"/{.sdd/agents,.sdd/skills,.sdd/docs}
-log_ok "Diretórios criados"
+log_ok "Diretórios criados em $CONTEXT_DIR"
 
-# Copiar arquivos da base para .sdd/
-log_info "Copiando arquivos base para .sdd/..."
+# Copiar arquivos base
+log_info "Copiando arquivos base..."
 cp "$BASE_SDD_DIR/agents"/*.md "$CONTEXT_DIR/.sdd/agents/" 2>/dev/null || log_warn "Nenhum arquivo agents encontrado"
 cp "$BASE_SDD_DIR/skills"/*.md "$CONTEXT_DIR/.sdd/skills/" 2>/dev/null || log_warn "Nenhum arquivo skills encontrado"
 cp "$BASE_SDD_DIR/docs"/*.md "$CONTEXT_DIR/.sdd/docs/" 2>/dev/null || log_warn "Nenhum arquivo docs encontrado"
 log_ok "Arquivos copiados"
 
-# Renomear -base.md para .md
-log_info "Renomeando arquivos -base.md..."
-find "$CONTEXT_DIR/.sdd" -name "*-base.md" -exec bash -c 'mv "$1" "${1%-base.md}.md"' _ {} \;
-log_ok "Arquivos renomeados"
-
-# Remover tags [GENÉRICO], [ESPECIALIZAÇÃO], [EXEMPLO]
-log_info "Removendo tags [GENÉRICO], [ESPECIALIZAÇÃO]..."
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS
-    find "$CONTEXT_DIR/.sdd" -name "*.md" -exec sed -i '' 's/^## \[GENÉRICO\]$//' {} \;
-    find "$CONTEXT_DIR/.sdd" -name "*.md" -exec sed -i '' 's/^## \[ESPECIALIZAÇÃO\]$//' {} \;
-    find "$CONTEXT_DIR/.sdd" -name "*.md" -exec sed -i '' '/^## \[EXEMPLO:[^]]*\]$/d' {} \;
-    find "$CONTEXT_DIR/.sdd" -name "*.md" -exec sed -i '' 's/ \[GENÉRICO\]//g' {} \;
-    find "$CONTEXT_DIR/.sdd" -name "*.md" -exec sed -i '' 's/ \[ESPECIALIZAÇÃO\]//g' {} \;
-else
-    # Linux/Windows (Git Bash)
-    find "$CONTEXT_DIR/.sdd" -name "*.md" -exec sed -i 's/^## \[GENÉRICO\]$//' {} \;
-    find "$CONTEXT_DIR/.sdd" -name "*.md" -exec sed -i 's/^## \[ESPECIALIZAÇÃO\]$//' {} \;
-    find "$CONTEXT_DIR/.sdd" -name "*.md" -exec sed -i '/^## \[EXEMPLO:[^]]*\]$/d' {} \;
-    find "$CONTEXT_DIR/.sdd" -name "*.md" -exec sed -i 's/ \[GENÉRICO\]//g' {} \;
-    find "$CONTEXT_DIR/.sdd" -name "*.md" -exec sed -i 's/ \[ESPECIALIZAÇÃO\]//g' {} \;
+# Copiar specialist-base.md para agents/ (será usado durante specialization)
+if [ -f "$BASE_SDD_DIR/agents/specialist-base.md" ]; then
+    cp "$BASE_SDD_DIR/agents/specialist-base.md" "$CONTEXT_DIR/.sdd/agents/"
+    log_ok "specialist-base.md copiado"
 fi
-log_ok "Tags removidas"
+
+# Renomear -base.md para .md
+log_info "Finalizando nomes de arquivos..."
+find "$CONTEXT_DIR/.sdd" -name "*-base.md" -exec bash -c 'mv "$1" "${1%-base.md}.md"' _ {} \;
+log_ok "Pronto"
 
 # Criar sdd-config.yaml
 log_info "Criando sdd-config.yaml..."
@@ -119,169 +98,64 @@ architecture:
   language: "LANGUAGE"
 
 agents:
-  feat:
-    file: "agents/feature-writer.md"
-    active: true
-  design:
-    file: "agents/designer.md"
-    active: true
-  plan:
-    file: "agents/planner.md"
-    active: true
-  arch:
-    file: "agents/architect.md"
-    active: true
-  code:
-    file: "agents/coder.md"
-    active: true
-  test:
-    file: "agents/tester.md"
-    active: true
-  pr:
-    file: "agents/pr-agent.md"
-    active: true
+# Criar sdd-config.yaml genérico (cópia de sdd-config-base.yaml)
+log_info "Criando sdd-config.yaml..."
+cp "$BASE_SDD_DIR/sdd-config-base.yaml" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
 
-skills:
-  git-flow:
-    file: "skills/git-workflow.md"
-    active: true
-  code-arch:
-    file: "skills/code-architecture.md"
-    active: true
-    customization: "CUSTOMIZATION"
-  exec-plan:
-    file: "skills/execution-plan.md"
-    active: true
-  test-strat:
-    file: "skills/testing-strategy.md"
-    active: true
-    customization: "TOOLS"
-  pr-create:
-    file: "skills/pr-creation.md"
-    active: true
-  code-rev:
-    file: "skills/code-review.md"
-    active: true
+# Substituir placeholders mínimos
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    sed -i '' "s/your-project-name/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
+    sed -i '' "s/Descrição breve do seu projeto/$CONTEXT_DESC/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
+else
+    sed -i "s/your-project-name/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
+    sed -i "s/Descrição breve do seu projeto/$CONTEXT_DESC/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
+fi
+log_ok "sdd-config.yaml criado (genérico)"
 
-docs:
-  project-context:
-    file: "docs/project-context.md"
-  architecture:
-    file: "docs/architecture.md"
-  features:
-    file: "docs/features.md"
-  tech-stack:
-    file: "docs/tech-stack.md"
-  glossary:
-    file: "docs/glossary.md"
-EOF
-
-# Substituir placeholders conforme stack
-case "$STACK" in
-    android)
-        sed -i.bak "s/CONTEXT_NAME/rateapp-android/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/CONTEXT_DESC/Community (RateApp)/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/STACK/Android/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/PATTERN/clean-architecture/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/FRAMEWORK/jetpack-compose/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/STATE_MGT/mvi/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/LANGUAGE/kotlin/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/CUSTOMIZATION/kotlin + compose/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/TOOLS/junit + mockk/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        ;;
-    react)
-        sed -i.bak "s/CONTEXT_NAME/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/CONTEXT_DESC/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/STACK/React/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/PATTERN/clean-architecture/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/FRAMEWORK/react/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/STATE_MGT/redux/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/LANGUAGE/typescript/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/CUSTOMIZATION/typescript + react + redux/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/TOOLS/jest + react-testing-library/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        ;;
-    node)
-        sed -i.bak "s/CONTEXT_NAME/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/CONTEXT_DESC/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/STACK/Node.js/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/PATTERN/clean-architecture/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/FRAMEWORK//g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/STATE_MGT/event-driven/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/LANGUAGE/typescript/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/CUSTOMIZATION/typescript + node.js + express/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/TOOLS/jest + supertest/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        ;;
-    custom)
-        sed -i.bak "s/CONTEXT_NAME/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/CONTEXT_DESC/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        sed -i.bak "s/STACK/Custom/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-        log_warn "Customize manualmente: pattern, framework, state_management, language"
-        ;;
-esac
-
-rm -f "$CONTEXT_DIR/.sdd/sdd-config.yaml.bak"
-log_ok "sdd-config.yaml criado"
-
-# Criar copilot-instructions.md
+# Criar copilot-instructions.md minimal
 log_info "Criando copilot-instructions.md..."
-cat > "$CONTEXT_DIR/.sdd/copilot-instructions.md" << EOF
-# GitHub Copilot Instructions — $CONTEXT_NAME
-
-## Regra Principal
-
-**Todo pedido DEVE ser direcionado ao Orchestrator (\`.sdd/agents/orchestrator.md\`).**
-
-Leia e siga o fluxo de orquestração antes de executar qualquer tarefa.
+cat > "$CONTEXT_DIR/copilot-instructions.md" << 'EOF'
+# GitHub Copilot Instructions
 
 ## Fluxo Obrigatório
 
-1. Carregar \`.sdd/agents/orchestrator.md\`
-2. Classificar tarefa (feature / bugfix / refactor / docs / test)
-3. Criar branch dedicada a partir de \`main\`
-4. Seguir fluxo de decisão do Orchestrator
-5. Commitar com conventional commits
-6. Validar padrões arquiteturais
-7. Atualizar SDD se necessário
-8. Push + criar PR via GitHub
+1. **Verificar Especialização**: Veja `.sdd/README-especialization.md` para confirmar tecnologias específicas
+2. **Llevar Orchestrator**: Sempre comece por `.sdd/agents/orchestrator.md`
+3. **Seguir Fluxo de Decisão**: Classifique a tarefa (feature / bugfix / refactor / test)
+4. **Usar Agentes Apropriados**: Feature Writer → Architect → Coder → Tester → PR Agent
+5. **Validar Antes de Commit**: Siga guidelines em `.sdd/docs/`
 
 ## Agentes Disponíveis
 
-| ID | Agente | Responsabilidade |
-|----|--------|-------------------|
-| \`[A:feat]\` | Feature Writer | Especificar demandas |
-| \`[A:design]\` | Designer | Design de telas |
-| \`[A:plan]\` | Planner | Decompor em tarefas |
-| \`[A:arch]\` | Architect | Validar arquitetura |
-| \`[A:code]\` | Coder | Implementar código |
-| \`[A:test]\` | Tester | Testes Given-When-Then |
-| \`[A:pr]\` | PR Agent | Push + criar PR |
+- **orchestrator.md** — Orquestra todo o fluxo (carregue primeiro!)
+- **feature-writer.md** — Especifica features/requisitos
+- **architect.md** — Valida design e arquitetura
+- **coder.md** — Implementa código
+- **tester.md** — Design de testes dados-quando-então
+- **pr-agent.md** — Submete PR (ainda não criado)
 
-## Comandos Rápidos
+## Próximo Passo
 
-- \`/spec <desc>\` — Especificar feature
-- \`/feat <desc>\` — Fluxo completo
-- \`/fix <desc>\` — Fluxo bugfix
-- \`/test <scope>\` — Apenas testes
-- \`/pr\` — Push branch + criar PR
-- \`/branch <tipo> <slug>\` — Criar branch
-- \`/status\` — Estado atual
+Após `make init` completar, customize a estrutura para sua tecnologia:
+```bash
+cd $CONTEXT_NAME
+make specialize TECH=react
+# ou: make specialize TECH=node, TECH=android, etc
+```
 
-## Restrições
-
-- ❌ Nunca pular etapas do Orchestrator
-- ❌ Nunca commitar em \`main\`
-- ✅ Sempre criar branch antes de implementar
-- ✅ Sempre validar padrões antes de avançar
-- ✅ Sempre submeter via PR
+Ou use o agente de especialização:
+```bash
+copilot /specialize
+```
 EOF
 log_ok "copilot-instructions.md criado"
 
 echo ""
-log_ok "✅ Contexto criado com sucesso em: $CONTEXT_DIR"
+log_ok "✅ Contexto SDD criado: $CONTEXT_DIR"
 log_info "Próximos passos:"
-log_info "  1. cd $CONTEXT_DIR"
-log_info "  2. Customizar .sdd/docs/ (project-context.md, architecture.md, tech-stack.md)"
-log_info "  3. Validar: python $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/validate-config.py .sdd/sdd-config.yaml"
-log_info "  4. Verificar: python $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/check-integrity.py .sdd"
-log_info "  5. Usar em seu projeto: cp -r .sdd/* /seu/projeto/.sdd"
+log_info "  1. cd $CONTEXT_NAME"
+log_info "  2. Especializar: make specialize TECH=<react|node|android|custom>"
+log_info "  3. Ou convocar agente: copilot /specialize"
+log_info ""
+log_info "Todo o resto fica para o agente de especialização!"
 echo ""

@@ -1,0 +1,29 @@
+# Ensure Unix line endings for bash scripts (LF only)
+# This prevents CRLF issues when running scripts on Unix-like systems
+*.sh text eol=lf
+scripts/*.sh text eol=lf
+
+# PowerShell scripts can use native line endings
+*.ps1 text
+
+# Markdown and YAML files
+*.md text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Python scripts
+*.py text eol=lf
+scripts/*.py text eol=lf
+
+# Force binary for common binary files
+*.png binary
+*.jpg binary
+*.gif binary
+*.zip binary
+*.tar binary
+*.gz binary
+
+# Git-specific
+.git text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf

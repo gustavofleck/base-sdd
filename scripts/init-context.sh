@@ -1,6 +1,6 @@
 #!/bin/bash
 # init-context.sh — Inicialização SIMPLES e RÁPIDA de novo contexto SDD
-# Usa estrutura genérica base. Especialização fica para um agente posterior.
+# Compatível com: macOS (Darwin), Linux, Windows (Git Bash/WSL)
 # 
 # Uso:
 #   ./init-context.sh my-project                    (interativo)
@@ -73,7 +73,12 @@ cp "$BASE_SDD_DIR/skills"/*.md "$CONTEXT_DIR/.sdd/skills/" 2>/dev/null || log_wa
 cp "$BASE_SDD_DIR/docs"/*.md "$CONTEXT_DIR/.sdd/docs/" 2>/dev/null || log_warn "Nenhum arquivo docs encontrado"
 log_ok "Arquivos copiados"
 
-# Copiar specialist-base.md para agents/ (será usado durante specialization)
+# Copiar base config e specialist
+if [ -f "$BASE_SDD_DIR/sdd-config-base.yaml" ]; then
+    cp "$BASE_SDD_DIR/sdd-config-base.yaml" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
+    log_ok "sdd-config.yaml copiado"
+fi
+
 if [ -f "$BASE_SDD_DIR/agents/specialist-base.md" ]; then
     cp "$BASE_SDD_DIR/agents/specialist-base.md" "$CONTEXT_DIR/.sdd/agents/"
     log_ok "specialist-base.md copiado"
@@ -84,25 +89,8 @@ log_info "Finalizando nomes de arquivos..."
 find "$CONTEXT_DIR/.sdd" -name "*-base.md" -exec bash -c 'mv "$1" "${1%-base.md}.md"' _ {} \;
 log_ok "Pronto"
 
-# Criar sdd-config.yaml
-log_info "Criando sdd-config.yaml..."
-cat > "$CONTEXT_DIR/.sdd/sdd-config.yaml" << 'EOF'
-base_version: "2.0.0"
-context: "CONTEXT_NAME"
-description: "CONTEXT_DESC — STACK"
-
-architecture:
-  pattern: "PATTERN"
-  ui_framework: "FRAMEWORK"
-  state_management: "STATE_MGT"
-  language: "LANGUAGE"
-
-agents:
-# Criar sdd-config.yaml genérico (cópia de sdd-config-base.yaml)
-log_info "Criando sdd-config.yaml..."
-cp "$BASE_SDD_DIR/sdd-config-base.yaml" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-
-# Substituir placeholders mínimos
+# Substituir placeholders em sdd-config.yaml (compatível com macOS e Linux)
+log_info "Customizando sdd-config.yaml..."
 if [[ "$OSTYPE" == "darwin"* ]]; then
     sed -i '' "s/your-project-name/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
     sed -i '' "s/Descrição breve do seu projeto/$CONTEXT_DESC/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
@@ -110,17 +98,17 @@ else
     sed -i "s/your-project-name/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
     sed -i "s/Descrição breve do seu projeto/$CONTEXT_DESC/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
 fi
-log_ok "sdd-config.yaml criado (genérico)"
+log_ok "sdd-config.yaml customizado"
 
-# Criar copilot-instructions.md minimal
+# Criar copilot-instructions.md
 log_info "Criando copilot-instructions.md..."
-cat > "$CONTEXT_DIR/copilot-instructions.md" << 'EOF'
+cat > "$CONTEXT_DIR/copilot-instructions.md" << 'COPILOT_EOF'
 # GitHub Copilot Instructions
 
 ## Fluxo Obrigatório
 
-1. **Verificar Especialização**: Veja `.sdd/README-especialization.md` para confirmar tecnologias específicas
-2. **Llevar Orchestrator**: Sempre comece por `.sdd/agents/orchestrator.md`
+1. **Verificar Especialização**: Veja `.sdd/README-specialization.md` para confirmar tecnologias específicas
+2. **Carregar Orchestrator**: Sempre comece por `.sdd/agents/orchestrator.md`
 3. **Seguir Fluxo de Decisão**: Classifique a tarefa (feature / bugfix / refactor / test)
 4. **Usar Agentes Apropriados**: Feature Writer → Architect → Coder → Tester → PR Agent
 5. **Validar Antes de Commit**: Siga guidelines em `.sdd/docs/`
@@ -136,26 +124,26 @@ cat > "$CONTEXT_DIR/copilot-instructions.md" << 'EOF'
 
 ## Próximo Passo
 
-Após `make init` completar, customize a estrutura para sua tecnologia:
+Após inicialização, customize a estrutura para sua tecnologia:
 ```bash
 cd $CONTEXT_NAME
-make specialize TECH=react
-# ou: make specialize TECH=node, TECH=android, etc
+make -f ../base-sdd/Makefile specialize TECH=react
 ```
 
 Ou use o agente de especialização:
 ```bash
 copilot /specialize
 ```
-EOF
+COPILOT_EOF
 log_ok "copilot-instructions.md criado"
 
 echo ""
 log_ok "✅ Contexto SDD criado: $CONTEXT_DIR"
+log_info ""
 log_info "Próximos passos:"
 log_info "  1. cd $CONTEXT_NAME"
-log_info "  2. Especializar: make specialize TECH=<react|node|android|custom>"
-log_info "  3. Ou convocar agente: copilot /specialize"
+log_info "  2. Especializar: make -f ../base-sdd/Makefile specialize TECH=<react|node|android|flutter|custom>"
+log_info "  3. Ou invocar agente: copilot /specialize"
 log_info ""
 log_info "Todo o resto fica para o agente de especialização!"
 echo ""

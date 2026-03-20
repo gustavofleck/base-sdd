@@ -104,7 +104,23 @@ python ../base-sdd/scripts/resolve-context.py .sdd
 
 ---
 
-## 📁 Estrutura do Projeto
+## �️ Compatibilidade Multiplataforma
+
+✅ **Windows**, **macOS**, **Linux** — Totalmente suportado!
+
+| SO | Método | Pré-requisito |
+|----|--------|---|
+| **macOS** | `make init` | Nada (já vem pronto) |
+| **Linux** | `make init` | `sudo apt install build-essential python3` |
+| **Windows (PowerShell)** | `.\scripts\init-context.ps1` | PowerShell 5.0+ + Python 3.7+ |
+| **Windows (Git Bash)** | `make init` | Git for Windows + Make |
+| **Windows (WSL 2)** | `make init` (no WSL) | WSL 2 instalado |
+
+Para detalhes completos, veja [**CROSS-PLATFORM-GUIDE.md**](./CROSS-PLATFORM-GUIDE.md) — guia passo a passo para cada SO.
+
+---
+
+## �📁 Estrutura do Projeto
 
 ```
 base-sdd/
@@ -113,8 +129,9 @@ base-sdd/
 ├── LICENSE                     # MIT License
 ├── .gitignore
 │
-├── scripts/                    # Ferramentas de automação
-│   ├── init-context.sh         # Wizard para criar novo contexto (30s)
+├── scripts/                    # Ferramentas de automação (multiplatforma)
+│   ├── init-context.sh         # Init para macOS/Linux (Bash 4.0+)
+│   ├── init-context.ps1        # Init para Windows (PowerShell 5.0+)
 │   ├── validate-config.py      # Validator de YAML schema
 │   ├── check-integrity.py      # Checker de integridade
 │   └── resolve-context.py      # Resolver com merge semântico

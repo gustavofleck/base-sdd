@@ -45,6 +45,8 @@ help:
 	@echo ""
 
 # Initialize with interactive prompt (SIMPLE + FAST)
+# Compatível com: Windows, macOS, Linux
+# Pré-requisito: Bash 4.0+ (já vem em macOS/Linux), ou Git Bash no Windows
 init:
 	@echo "$(BLUE)╔════════════════════════════════════════════════════════════╗$(NC)"
 	@echo "$(BLUE)║      SDD Init — Simples, Rápido, Agnóstico                 ║$(NC)"

@@ -1,4 +1,4 @@
-# Base-SDD — Sistema Distribuído de Decisão para Agentes Especializados
+# Base-SDD — Specification Driven Development
 
 [![Version](https://img.shields.io/badge/version-2.0.0-blue)](./docs/CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-MIT-green)](./LICENSE)
@@ -7,7 +7,7 @@
 
 ## 📋 Descrição
 
-**Base-SDD** é um framework agnóstico para criar sistemas de orquestração de agentes especializados (Feature Writers, Architects, Coders, Testers, etc.) reutilizáveis em qualquer contexto: Android, React, Node.js, ou qualquer tecnologia.
+**Base-SDD** é um framework agnóstico para desenvolvimento inteligente baseado em especificações. Oferece um sistema de orquestração de agentes especializados (Feature Writers, Architects, Coders, Testers, etc.) reutilizável em qualquer contexto, linguagem ou tecnologia.
 
 O projeto oferece:
 - ✅ **Estrutura base genérica** (agents, skills, docs) compilada em Markdown
@@ -25,22 +25,11 @@ git clone https://github.com/gustavoabelh/base-sdd.git
 cd base-sdd
 ```
 
-### 2. Criar um novo contexto (Android, React ou Node.js)
+### 2. Criar um novo contexto
 
 ```bash
-# Escolha uma opção:
-
-# Opção 1: Modo interativo
+# Modo interativo
 make init
-
-# Opção 2: Android context
-make init-android
-
-# Opção 3: React context
-make init-react
-
-# Opção 4: Node.js context
-make init-node
 ```
 
 **Resultado:** Nova pasta criada **UMA NÍVEL ACIMA do clone** com estrutura SDD pronta:

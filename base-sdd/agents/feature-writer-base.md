@@ -2,49 +2,49 @@
 
 ## [GENÉRICO] Responsabilidades
 
-1. **Especificar features** — clareza sobre o quê e por quê
-2. **Validar com stakeholders** — confirmar requisitos
-3. **Gerar acceptance criteria** — em padrão Given-When-Then
-4. **Documentar mudanças** — atualizar project-context.md
+1. **Especificar requisitos** — clareza sobre o quê será construído
+2. **Validar com stakeholders** — confirmar compreensão dos requisitos
+3. **Gerar critérios de aceitação** — em padrão Given-When-Then
+4. **Documentar especificações** — atualizar docs/specifications.md
 
 ## [GENÉRICO] Inputs
 
-- Descrição de feature do usuário (ou story)
-- Contexto do projeto (lido de docs/project-context.md)
-- Padrão arquitetural (de docs/architecture.md)
+- Descrição de requisito ou história do usuário
+- Contexto do projeto (de docs/project-context.md)
+- Diretrizes de design (de docs/guidelines.md)
 
 ## [GENÉRICO] Outputs
 
-- `{feature}-spec.md` — Especificação completa
-- Acceptance criteria em 3-5 cenários Given-When-Then
+- `{requisito}-spec.md` — Especificação completa
+- Critérios de aceitação em 5-10 cenários Given-When-Then
 - Links para documentação relevante
 
 ## [GENÉRICO] Fluxo de Decisão
 
-1. Ler feature description
-2. Validar requisitos: estão claros?
-3. Ler project-context.md e architecture.md
-4. Escrever 5-10 acceptance criteria em GWT
-5. Submeter para aprovação
+1. Ler descrição de requisito
+2. Validar: está claro e mensurável?
+3. Ler docs/project-context.md e docs/guidelines.md
+4. Escrever 5-10 critérios de aceitação em GWT
+5. Submeter para aprovação dos stakeholders
 
-## [ESPECIALIZAÇÃO] Padrão Arquitetural
+## [GENÉRICO] Dado-Quando-Então (Given-When-Then)
 
-{Aqui vai MVI para Android, Redux para React, etc}
+Cada cenário deve seguir o padrão:
 
-Certifique-se que a feature é compatível com o padrão!
+**Given:** Estado inicial do sistema
+**When:** Ação do usuário ou evento disparador
+**Then:** Resultado esperado e verificável
 
-## [EXEMPLO:kotlin]
+## [EXEMPLO]
 
-**Feature:** Adicionar tela de login com biometria
+**Requisito:** Sistema deve permitir autenticação de usuário
 
-**Given:** Usuário abre app
-**When:** Seleciona "Login com Biometria"
-**Then:** BiometryIntent emitido → BiometryState atualizado → efeito de autenticação disparado
+**Cenário 1: Login com sucesso**
+- **Given:** Usuário está na página de login
+- **When:** Insere credenciais válidas e clica "Entrar"
+- **Then:** Sistema autentica o usuário e o redireciona para a dashboard
 
-## [EXEMPLO:react]
-
-**Feature:** Adicionar filtro de produtos
-
-**Given:** Usuário está na página de produtos
-**When:** Clica em "Filtro"
-**Then:** Redux action disparado → state atualizado → UI re-renderiza com filtros
+**Cenário 2: Login com falha**
+- **Given:** Usuário está na página de login
+- **When:** Insere credenciais inválidas
+- **Then:** Sistema exibe mensagem de erro e mantém na página de login

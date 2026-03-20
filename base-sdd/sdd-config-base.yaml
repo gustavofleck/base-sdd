@@ -1,29 +1,27 @@
-# SDD Configuration — Template Base
+# SDD Configuration — Specification Driven Development
 
 # Base version do framework
 base_version: "2.0.0"
 
 # Identificação do contexto
-context: "your-context-name"
-description: "Descrição breve do seu contexto — Stack"
+context: "your-project-name"
+description: "Descrição breve do seu projeto"
 
-# Padrão arquitetural
-architecture:
-  pattern: "clean-architecture"  # clean-architecture, hexagonal, onion, etc
-  ui_framework: "framework-name"  # compose, react, flutter, etc
-  state_management: "pattern-name"  # mvi, redux, bloc, event-driven, etc
-  language: "language"  # kotlin, typescript, python, go, rust, etc
+# Padrão de desenvolvimento
+development:
+  methodology: "specification-driven-development"
+  approach: "behavior-driven-design"  # BDD, TDD, etc
 
-# Agentes especializados (7 obrigatórios)
+# Agentes especializados (6 obrigatórios)
+# Cada agente é uma persona especializada que toma decisões
+# Veja docs/agents-vs-skills.md para entender a diferença com skills
 agents:
+  orchestrator:
+    file: "agents/orchestrator.md"
+    active: true
+    primary: true
   feat:
     file: "agents/feature-writer.md"
-    active: true
-  design:
-    file: "agents/designer.md"
-    active: true
-  plan:
-    file: "agents/planner.md"
     active: true
   arch:
     file: "agents/architect.md"
@@ -39,6 +37,8 @@ agents:
     active: true
 
 # Skills reutilizáveis (6)
+# Skills são procedimentos carregados SOB DEMANDA pelos agentes
+# Veja docs/agents-vs-skills.md para entender quando usar skills vs agentes
 skills:
   git-flow:
     file: "skills/git-workflow.md"
@@ -46,14 +46,12 @@ skills:
   code-arch:
     file: "skills/code-architecture.md"
     active: true
-    customization: "Customization notes here"
   exec-plan:
     file: "skills/execution-plan.md"
     active: true
   test-strat:
     file: "skills/testing-strategy.md"
     active: true
-    customization: "Testing tools and frameworks"
   pr-create:
     file: "skills/pr-creation.md"
     active: true
@@ -61,16 +59,19 @@ skills:
     file: "skills/code-review.md"
     active: true
 
-# Documentação (5 obrigatórios)
+# Documentação (7 obrigatórios)
 docs:
+  agents-vs-skills:
+    file: "docs/agents-vs-skills.md"
+    description: "Decision framework para quando usar agentes vs skills"
   project-context:
     file: "docs/project-context.md"
+  specifications:
+    file: "docs/specifications.md"
   architecture:
     file: "docs/architecture.md"
-  features:
-    file: "docs/features.md"
-  tech-stack:
-    file: "docs/tech-stack.md"
+  guidelines:
+    file: "docs/guidelines.md"
   glossary:
     file: "docs/glossary.md"
 
@@ -80,17 +81,15 @@ metadata:
   email: "your@email.com"
   created_at: "2026-01-01"
   updated_at: "2026-01-01"
-  github_repo: "https://github.com/your/repo"
+  repository: "https://github.com/your/repo"
   license: "MIT"
   tags:
-    - "clean-architecture"
-    - "kotlin"
-    - "compose"
+    - "specification-driven-development"
+    - "behavior-driven-design"
 
 # Dependencies (opcional, para Phase 3 marketplace)
 dependencies:
   base-sdd: "^2.0.0"
-  # designer-kit-material3: "^1.2.0"
 
 # Version compatibility
 version_info:

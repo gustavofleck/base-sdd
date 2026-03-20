@@ -38,39 +38,26 @@ Closes: #123
 ## [GENÉRICO] Merge Strategy
 
 1. ✅ Branch criada a partir de main
-2. ✅ Commits mensagem clara
-3. ✅ CI/CD passa
+2. ✅ Commits com mensagens claras
+3. ✅ Testes passando
 4. ✅ Code review aprovado
-5. ✅ Squash + merge (1 commit = 1 feature)
+5. ✅ Squash + merge (1 commit = 1 tarefa)
 6. ✅ Delete branch
 
-## [EXEMPLO:qualquer-linguagem]
+## [GENÉRICO] Validações Pre-Merge
+
+- ✅ Especificação revisada
+- ✅ Testes automatizados passando
+- ✅ Código revisado
+- ✅ Documentação atualizada
+- ✅ Nenhuma quebra de builds anteriores
+
+## [EXEMPLO]
 
 ```bash
 git checkout -b feat/user-authentication
 git add .
-git commit -m "feat(auth): add login with jwt tokens"
+git commit -m "feat(auth): add jwt-based authentication"
 git push origin feat/user-authentication
-# Open PR on GitHub
+# Abrir PR no repositório
 ```
-
----
-
-## [ESPECIALIZAÇÃO] CI/CD Pre-Merge Checks
-
-{Customizar conforme seu stack}
-
-**Android:**
-- ./gradlew test
-- ./gradlew lint
-- Code coverage > 80%
-
-**React:**
-- npm test
-- npm run lint
-- npm run build
-
-**Node.js:**
-- npm test
-- npm run lint
-- npm run typecheck

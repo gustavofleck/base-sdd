@@ -32,40 +32,36 @@ Defina 2-3 personas principais:
 - Phase 3: Analytics + Growth
 - Phase 4: Scale + Performance
 
-## [ESPECIALIZAÇÃO] Tech Stack
+## [GENÉRICO] Tech Stack (Agnóstico)
 
-{Customizar para seu stack}
+Descreva sua pilha tecnológica:
 
-**Language:** Kotlin / TypeScript / Python / etc
-**Framework:** Compose / React / Flask / etc
-**Architecture:** Clean Architecture + MVI / Redux / Event-Driven
-**Database:** Room / PostgreSQL / MongoDB
-**Testing:** JUnit / Jest / Pytest
+**Plataforma:** Web, Mobile, Desktop, CLI, Embarcado, etc
+**Linguagem(ns):** Qual(is) linguagem(ns) será(ão) usadas?
+**Padrão Arquitetural:** Clean Architecture, Hexagonal, Event-Driven, etc
+**Persistência:** Banco de dados, cache, armazenamento
+**Testes:** Framework(s) de teste automatizado
 
-## [ESPECIALIZAÇÃO] Team
+## [GENÉRICO] Team
 
 - **Size:** X pessoas
-- **Backend:** Y pessoas
-- **Frontend:** Z pessoas
-- **QA:** ? pessoas
+- **Roles:** Product Manager, Arquiteto, Desenvolvedores, QA, etc
+- **Estrutura:** Qual a distribuição de responsabilidades?
 
-## [ESPECIALIZAÇÃO] Constraints
+## [GENÉRICO] Constraints
 
-- **Timeline:** Release target?
-- **Performance:** Response time goals?
-- **Scalability:** Expected users?
-- **Budget:** App monetizado?
+- **Timeline:** Quando deve estar pronto?
+- **Performance:** Requisitos críticos de performance?
+- **Scalability:** Quantos usuários/requisições esperados?
+- **Budget:** Qual é o orçamento?
+- **Compliance:** Há requisitos regulatórios?
 
-## [EXEMPLO:kotlin]
+## [EXEMPLO]
 
-Project: RateApp — Android app for rating restaurants
-Purpose: Help users discover and review local restaurants
-Users: Food enthusiasts, business owners
-Architecture: Clean Architecture + MVI + Jetpack Compose
-
-## [EXEMPLO:react]
-
-Project: Dashboard Admin — Web app for data visualization
-Purpose: Monitor business metrics in real-time
-Users: Executives, analysts
-Architecture: Clean Architecture + Redux + Next.js
+**Project:** ContentHub — Sistema de gerenciamento de conteúdo
+**Purpose:** Plataforma central para criar, revisar e publicar conteúdo
+**Users:** Editores, redatores, revisores
+**Domain:** Content Management
+**Architecture:** Clean Architecture com padrão de eventos
+**Tech Stack:** Qualquer linguagem + banco relacional + testes automatizados
+**Timeline:** 6 meses para MVP

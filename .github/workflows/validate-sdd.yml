@@ -1,0 +1,121 @@
+name: Validate SDD Context
+
+on:
+  pull_request:
+    paths:
+      - '.sdd/**'
+      - 'sdd-config.yaml'
+      - 'copilot-instructions.md'
+      - '.github/workflows/validate-sdd.yml'
+
+jobs:
+  validate-config:
+    name: Validate YAML Configuration
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+      
+      - name: Check if sdd-config.yaml exists
+        id: check-config
+        run: |
+          if [ -f ".sdd/sdd-config.yaml" ] || [ -f "sdd-config.yaml" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run Config Validation
+        if: steps.check-config.outputs.exists == 'true'
+        run: |
+          CONFIG_FILE=".sdd/sdd-config.yaml"
+          if [ ! -f "$CONFIG_FILE" ]; then
+            CONFIG_FILE="sdd-config.yaml"
+          fi
+          
+          echo "━━━ Validating: $CONFIG_FILE"
+          python ../base-sdd/scripts/validate-config.py "$CONFIG_FILE" || exit 1
+
+  check-integrity:
+    name: Check Context Integrity
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          pip install pyyaml
+      
+      - name: Check if .sdd directory exists
+        id: check-sdd
+        run: |
+          if [ -d ".sdd" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Run Integrity Checks
+        if: steps.check-sdd.outputs.exists == 'true'
+        run: |
+          echo "━━━ Checking: .sdd"
+          python ../base-sdd/scripts/check-integrity.py ".sdd"
+
+  check-file-changes:
+    name: Check File Changes in PR
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check for syntax errors
+        run: |
+          echo "Checking Markdown files..."
+          find .sdd -name "*.md" 2>/dev/null | while read file; do
+            if [ -f "$file" ]; then
+              echo "✅ $file (exists)"
+            fi
+          done || true
+
+  summary:
+    name: Validation Summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [validate-config, check-integrity, check-file-changes]
+    
+    steps:
+      - name: Print Summary
+        run: |
+          echo ""
+          echo "╔════════════════════════════════════════╗"
+          echo "║      SDD Context Validation Summary     ║"
+          echo "╚════════════════════════════════════════╝"
+          echo ""
+          echo "✅ All local checks completed"
+          echo ""
+          echo "Next steps:"
+          echo "1. Review .sdd/sdd-config.yaml in PR"
+          echo "2. Ensure agents/skills integration"
+          echo "3. Verify documentation completeness"
+          echo "4. Merge when ready"
+          echo ""

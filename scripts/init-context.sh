@@ -38,15 +38,14 @@ CONTEXT_DIR="$(pwd)"
 log_info "Inicializando SDD em: $CONTEXT_DIR"
 log_info "Contexto: $CONTEXT_NAME"
 
-# Criar .github/sdd e agents (na raiz) se não existirem
-log_info "Criando estrutura..."
-mkdir -p "$CONTEXT_DIR/.github/sdd"/{skills,docs}
-mkdir -p "$CONTEXT_DIR/agents"
-log_ok "Estrutura criada"
+# Criar .github/sdd se não existir
+log_info "Criando estrutura em .github/sdd/"
+mkdir -p "$CONTEXT_DIR/.github/sdd"/{agents,skills,docs}
+log_ok ".github/sdd/ criado"
 
 # Copiar arquivos base
 log_info "Copiando arquivos base..."
-cp "$BASE_SDD_DIR/agents"/*.md "$CONTEXT_DIR/agents/" 2>/dev/null || log_warn "Nenhum arquivo agents encontrado"
+cp "$BASE_SDD_DIR/agents"/*.md "$CONTEXT_DIR/.github/sdd/agents/" 2>/dev/null || log_warn "Nenhum arquivo agents encontrado"
 cp "$BASE_SDD_DIR/skills"/*.md "$CONTEXT_DIR/.github/sdd/skills/" 2>/dev/null || log_warn "Nenhum arquivo skills encontrado"
 cp "$BASE_SDD_DIR/docs"/*.md "$CONTEXT_DIR/.github/sdd/docs/" 2>/dev/null || log_warn "Nenhum arquivo docs encontrado"
 log_ok "Arquivos copiados"
@@ -58,13 +57,13 @@ if [ -f "$BASE_SDD_DIR/sdd-config-base.yaml" ]; then
 fi
 
 if [ -f "$BASE_SDD_DIR/agents/specialist-base.md" ]; then
-    cp "$BASE_SDD_DIR/agents/specialist-base.md" "$CONTEXT_DIR/agents/"
+    cp "$BASE_SDD_DIR/agents/specialist-base.md" "$CONTEXT_DIR/.github/sdd/agents/"
     log_ok "specialist-base.md copiado"
 fi
 
 # Renomear -base.md para .md
 log_info "Finalizando nomes de arquivos..."
-find "$CONTEXT_DIR/.github/sdd" "$CONTEXT_DIR/agents" -name "*-base.md" -exec bash -c 'mv "$1" "${1%-base.md}.md"' _ {} \;
+find "$CONTEXT_DIR/.github/sdd" -name "*-base.md" -exec bash -c 'mv "$1" "${1%-base.md}.md"' _ {} \;
 log_ok "Pronto"
 
 # Substituir placeholders em sdd-config.yaml (compatível com macOS e Linux)
@@ -78,17 +77,6 @@ else
 fi
 log_ok "sdd-config.yaml customizado"
 
-# Substituir placeholders em agents (na raiz)
-log_info "Customizando agents..."
-find "$CONTEXT_DIR/agents" -name "*.md" -type f | while read file; do
-    if [[ "$OSTYPE" == "darwin"* ]]; then
-        sed -i '' "s/your-project-name/$CONTEXT_NAME/g" "$file"
-    else
-        sed -i "s/your-project-name/$CONTEXT_NAME/g" "$file"
-    fi
-done
-log_ok "agents customizados"
-
 # Criar copilot-instructions.md NA RAIZ DO PROJETO
 log_info "Criando copilot-instructions.md..."
 cat > "$CONTEXT_DIR/copilot-instructions.md" << 'COPILOT_EOF'
@@ -97,7 +85,7 @@ cat > "$CONTEXT_DIR/copilot-instructions.md" << 'COPILOT_EOF'
 ## Fluxo Obrigatório
 
 1. **Verificar Especialização**: Veja `.github/sdd/README-specialization.md` para confirmar tecnologias específicas
-2. **Carregar Orchestrator**: Sempre comece por `agents/orchestrator.md`
+2. **Carregar Orchestrator**: Sempre comece por `.github/sdd/agents/orchestrator.md`
 3. **Seguir Fluxo de Decisão**: Classifique a tarefa (feature / bugfix / refactor / test)
 4. **Usar Agentes Apropriados**: Feature Writer → Architect → Coder → Tester → PR Agent
 5. **Validar Antes de Commit**: Siga guidelines em `.github/sdd/docs/`
@@ -129,7 +117,7 @@ echo ""
 log_ok "✅ SDD inicializado em: $CONTEXT_DIR"
 log_info ""
 log_info "Estrutura criada:"
-log_info "  agents/                    ← Agentes (raiz)"
+log_info "  .github/sdd/agents/        ← Agentes"
 log_info "  .github/sdd/skills/        ← Skills"
 log_info "  .github/sdd/docs/          ← Documentação"
 log_info "  .github/sdd/sdd-config.yaml ← Configuração"

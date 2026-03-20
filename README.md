@@ -40,9 +40,9 @@ make -f ../base-sdd/Makefile init
 
 ```
 seu-projeto/
-├── agents/                      ← Agentes (genéricos, na raiz)
 ├── .github/
 │   └── sdd/
+│       ├── agents/              ← Agentes (genéricos)
 │       ├── skills/              ← Skills (reutilizáveis)
 │       ├── docs/                ← Documentação (templates)
 │       └── sdd-config.yaml      ← Configuração (agnóstica)

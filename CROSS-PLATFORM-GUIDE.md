@@ -14,18 +14,17 @@ O Base-SDD funciona em **Windows**, **macOS** e **Linux**. Este documento explic
 ### Como usar
 
 ```bash
-# Clone
+# Clone base-sdd (apenas uma vez)
 git clone https://github.com/gustavofleck/base-sdd.git
-cd base-sdd
 
-# Passo 1: Init
-make init
-# → Responda: nome + descrição
-# → Estrutura genérica criada
+# Passo 1: Init (dentro do seu projeto)
+cd seu-projeto
+make -f ../base-sdd/Makefile init
+# → Cria .github/sdd/ dentro do projeto (agnóstico)
 
-# Passo 2: Specialize
-cd ../seu-projeto
+# Passo 2: Specialize (ainda dentro de seu-projeto)
 make -f ../base-sdd/Makefile specialize TECH=react
+# → Customiza .github/sdd/ para sua tech stack
 ```
 
 ### Troubleshooting
@@ -54,10 +53,11 @@ Idêntico ao macOS:
 
 ```bash
 git clone https://github.com/gustavofleck/base-sdd.git
-cd base-sdd
 
-make init
-cd ../seu-projeto
+cd seu-projeto
+make -f ../base-sdd/Makefile init
+
+# Specialize (ainda dentro de seu-projeto)
 make -f ../base-sdd/Makefile specialize TECH=node
 ```
 
@@ -86,14 +86,15 @@ make init
 ```powershell
 # Clone (com Git for Windows)
 git clone https://github.com/gustavofleck/base-sdd.git
-cd base-sdd
 
-# Passo 1: Init (PowerShell)
-.\scripts\init-context.ps1
+# Passo 1: Init (na raiz do seu projeto)
+cd seu-projeto
+..\base-sdd\scripts\init-context.ps1
+# → Cria .github/sdd/ dentro do projeto
 
-# Passo 2: Specialize
-cd ..\seu-projeto
+# Passo 2: Specialize (ainda dentro de seu-projeto)
 make -f ..\base-sdd\Makefile specialize TECH=react
+# → Customiza .github/sdd/ para sua tech stack
 ```
 
 #### Permitir execução de scripts PowerShell
@@ -127,14 +128,15 @@ Abra **Git Bash** (não PowerShell/CMD):
 ```bash
 # Clone
 git clone https://github.com/gustavofleck/base-sdd.git
-cd base-sdd
 
-# Passo 1: Init (dentro do Git Bash)
-bash scripts/init-context.sh
+# Passo 1: Init (na raiz do seu projeto)
+cd seu-projeto
+bash ../base-sdd/scripts/init-context.sh
+# → Cria .github/sdd/ dentro do projeto
 
-# Passo 2: Specialize
-cd ../seu-projeto
+# Passo 2: Specialize (ainda dentro de seu-projeto)
 make -f ../base-sdd/Makefile specialize TECH=react
+# → Customiza .github/sdd/ para sua tech stack
 ```
 
 ---
@@ -152,13 +154,17 @@ make -f ../base-sdd/Makefile specialize TECH=react
 # Dentro do WSL Terminal
 wsl
 
-# Depois igual ao Linux:
+# Clone
 git clone https://github.com/gustavofleck/base-sdd.git
-cd base-sdd
 
-make init
-cd ../seu-projeto
-make specialize TECH=react
+# Passo 1: Init (na raiz do seu projeto)
+cd seu-projeto
+make -f ../base-sdd/Makefile init
+# → Cria .github/sdd/ dentro do projeto
+
+# Passo 2: Specialize (ainda dentro de seu-projeto)
+make -f ../base-sdd/Makefile specialize TECH=react
+# → Customiza .github/sdd/ para sua tech stack
 ```
 
 ---

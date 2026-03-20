@@ -1,10 +1,11 @@
 #!/bin/bash
 # init-context.sh — Inicialização SIMPLES e RÁPIDA de novo contexto SDD
+# Cria estrutura dentro do projeto atual (não em pasta irmã)
 # Compatível com: macOS (Darwin), Linux, Windows (Git Bash/WSL)
 # 
 # Uso:
-#   ./init-context.sh my-project                    (interativo)
-#   ./init-context.sh my-project "My Project Desc"  (direto)
+#   ./init-context.sh                    (na raiz do projeto)
+#   CONTEXT_NAME="meu-app" ./init-context.sh
 
 set -e
 
@@ -20,7 +21,7 @@ log_ok() { echo -e "${GREEN}[OK]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-# Detectar BASE_SDD_DIR
+# Detectar BASE_SDD_DIR (onde está o base-sdd)
 if [ -z "$BASE_SDD_DIR" ]; then
     BASE_SDD_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/base-sdd"
 fi
@@ -30,88 +31,64 @@ if [ ! -d "$BASE_SDD_DIR/agents" ]; then
     exit 1
 fi
 
-# Argumentos ou interativo
-if [ $# -ge 1 ]; then
-    CONTEXT_NAME=$1
-    CONTEXT_DESC=${2:-"Projeto $CONTEXT_NAME"}
-else
-    log_info "=== SDD Init (Simples e Rápido) ==="
-    echo ""
-    read -p "Nome do projeto (ex: meu-app): " CONTEXT_NAME
-    read -p "Descrição breve (ex: Aplicação de tarefas): " CONTEXT_DESC
-fi
+# Contexto atual (onde o script é executado)
+CONTEXT_NAME="${CONTEXT_NAME:-$(basename "$(pwd)")}"
+CONTEXT_DIR="$(pwd)"
 
-# Validar entrada
-if [ -z "$CONTEXT_NAME" ]; then
-    log_error "Nome do projeto é obrigatório"
-    exit 1
-fi
+log_info "Inicializando SDD em: $CONTEXT_DIR"
+log_info "Contexto: $CONTEXT_NAME"
 
-if [[ ! "$CONTEXT_NAME" =~ ^[a-z0-9_-]+$ ]]; then
-    log_error "Nome inválido. Use: a-z, 0-9, _, -"
-    exit 1
-fi
-
-# Criar diretório (uma pasta acima da raiz do projeto SDD)
-PARENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-CONTEXT_DIR="$PARENT_DIR/$CONTEXT_NAME"
-
-if [ -d "$CONTEXT_DIR/.sdd" ]; then
-    log_error "Contexto SDD já existe em $CONTEXT_DIR/.sdd"
-    exit 1
-fi
-
-# Criar estrutura de diretórios
-log_info "Criando estrutura para: $CONTEXT_NAME"
-mkdir -p "$CONTEXT_DIR"/{.sdd/agents,.sdd/skills,.sdd/docs}
-log_ok "Diretórios criados em $CONTEXT_DIR"
+# Criar .github/sdd se não existir
+log_info "Criando estrutura em .github/sdd/"
+mkdir -p "$CONTEXT_DIR/.github/sdd"/{agents,skills,docs}
+log_ok ".github/sdd/ criado"
 
 # Copiar arquivos base
 log_info "Copiando arquivos base..."
-cp "$BASE_SDD_DIR/agents"/*.md "$CONTEXT_DIR/.sdd/agents/" 2>/dev/null || log_warn "Nenhum arquivo agents encontrado"
-cp "$BASE_SDD_DIR/skills"/*.md "$CONTEXT_DIR/.sdd/skills/" 2>/dev/null || log_warn "Nenhum arquivo skills encontrado"
-cp "$BASE_SDD_DIR/docs"/*.md "$CONTEXT_DIR/.sdd/docs/" 2>/dev/null || log_warn "Nenhum arquivo docs encontrado"
+cp "$BASE_SDD_DIR/agents"/*.md "$CONTEXT_DIR/.github/sdd/agents/" 2>/dev/null || log_warn "Nenhum arquivo agents encontrado"
+cp "$BASE_SDD_DIR/skills"/*.md "$CONTEXT_DIR/.github/sdd/skills/" 2>/dev/null || log_warn "Nenhum arquivo skills encontrado"
+cp "$BASE_SDD_DIR/docs"/*.md "$CONTEXT_DIR/.github/sdd/docs/" 2>/dev/null || log_warn "Nenhum arquivo docs encontrado"
 log_ok "Arquivos copiados"
 
 # Copiar base config e specialist
 if [ -f "$BASE_SDD_DIR/sdd-config-base.yaml" ]; then
-    cp "$BASE_SDD_DIR/sdd-config-base.yaml" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
+    cp "$BASE_SDD_DIR/sdd-config-base.yaml" "$CONTEXT_DIR/.github/sdd/sdd-config.yaml"
     log_ok "sdd-config.yaml copiado"
 fi
 
 if [ -f "$BASE_SDD_DIR/agents/specialist-base.md" ]; then
-    cp "$BASE_SDD_DIR/agents/specialist-base.md" "$CONTEXT_DIR/.sdd/agents/"
+    cp "$BASE_SDD_DIR/agents/specialist-base.md" "$CONTEXT_DIR/.github/sdd/agents/"
     log_ok "specialist-base.md copiado"
 fi
 
 # Renomear -base.md para .md
 log_info "Finalizando nomes de arquivos..."
-find "$CONTEXT_DIR/.sdd" -name "*-base.md" -exec bash -c 'mv "$1" "${1%-base.md}.md"' _ {} \;
+find "$CONTEXT_DIR/.github/sdd" -name "*-base.md" -exec bash -c 'mv "$1" "${1%-base.md}.md"' _ {} \;
 log_ok "Pronto"
 
 # Substituir placeholders em sdd-config.yaml (compatível com macOS e Linux)
 log_info "Customizando sdd-config.yaml..."
 if [[ "$OSTYPE" == "darwin"* ]]; then
-    sed -i '' "s/your-project-name/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-    sed -i '' "s/Descrição breve do seu projeto/$CONTEXT_DESC/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
+    sed -i '' "s/your-project-name/$CONTEXT_NAME/g" "$CONTEXT_DIR/.github/sdd/sdd-config.yaml"
+    sed -i '' "s/Descrição breve do seu projeto/$CONTEXT_NAME/g" "$CONTEXT_DIR/.github/sdd/sdd-config.yaml"
 else
-    sed -i "s/your-project-name/$CONTEXT_NAME/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
-    sed -i "s/Descrição breve do seu projeto/$CONTEXT_DESC/g" "$CONTEXT_DIR/.sdd/sdd-config.yaml"
+    sed -i "s/your-project-name/$CONTEXT_NAME/g" "$CONTEXT_DIR/.github/sdd/sdd-config.yaml"
+    sed -i "s/Descrição breve do seu projeto/$CONTEXT_NAME/g" "$CONTEXT_DIR/.github/sdd/sdd-config.yaml"
 fi
 log_ok "sdd-config.yaml customizado"
 
-# Criar copilot-instructions.md
+# Criar copilot-instructions.md NA RAIZ DO PROJETO
 log_info "Criando copilot-instructions.md..."
 cat > "$CONTEXT_DIR/copilot-instructions.md" << 'COPILOT_EOF'
 # GitHub Copilot Instructions
 
 ## Fluxo Obrigatório
 
-1. **Verificar Especialização**: Veja `.sdd/README-specialization.md` para confirmar tecnologias específicas
-2. **Carregar Orchestrator**: Sempre comece por `.sdd/agents/orchestrator.md`
+1. **Verificar Especialização**: Veja `.github/sdd/README-specialization.md` para confirmar tecnologias específicas
+2. **Carregar Orchestrator**: Sempre comece por `.github/sdd/agents/orchestrator.md`
 3. **Seguir Fluxo de Decisão**: Classifique a tarefa (feature / bugfix / refactor / test)
 4. **Usar Agentes Apropriados**: Feature Writer → Architect → Coder → Tester → PR Agent
-5. **Validar Antes de Commit**: Siga guidelines em `.sdd/docs/`
+5. **Validar Antes de Commit**: Siga guidelines em `.github/sdd/docs/`
 
 ## Agentes Disponíveis
 
@@ -124,9 +101,8 @@ cat > "$CONTEXT_DIR/copilot-instructions.md" << 'COPILOT_EOF'
 
 ## Próximo Passo
 
-Após inicialização, customize a estrutura para sua tecnologia:
+Customize a estrutura para sua tecnologia:
 ```bash
-cd $CONTEXT_NAME
 make -f ../base-sdd/Makefile specialize TECH=react
 ```
 
@@ -138,12 +114,18 @@ COPILOT_EOF
 log_ok "copilot-instructions.md criado"
 
 echo ""
-log_ok "✅ Contexto SDD criado: $CONTEXT_DIR"
+log_ok "✅ SDD inicializado em: $CONTEXT_DIR"
+log_info ""
+log_info "Estrutura criada:"
+log_info "  .github/sdd/agents/        ← Agentes"
+log_info "  .github/sdd/skills/        ← Skills"
+log_info "  .github/sdd/docs/          ← Documentação"
+log_info "  .github/sdd/sdd-config.yaml ← Configuração"
+log_info "  copilot-instructions.md    ← Instruções (raiz)"
 log_info ""
 log_info "Próximos passos:"
-log_info "  1. cd $CONTEXT_NAME"
-log_info "  2. Especializar: make -f ../base-sdd/Makefile specialize TECH=<react|node|android|flutter|custom>"
-log_info "  3. Ou invocar agente: copilot /specialize"
+log_info "  1. Especializar: make -f ../base-sdd/Makefile specialize TECH=<react|node|android|flutter|custom>"
+log_info "  2. Ou invocar agente: copilot /specialize"
 log_info ""
-log_info "Todo o resto fica para o agente de especialização!"
+log_info "Estrutura agnóstica pronta. Tecnologia será definida na especialização!"
 echo ""

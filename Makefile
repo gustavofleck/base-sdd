@@ -46,10 +46,12 @@ help:
 
 # Initialize with interactive prompt (SIMPLE + FAST)
 # Compatível com: Windows, macOS, Linux
-# Pré-requisito: Bash 4.0+ (já vem em macOS/Linux), ou Git Bash no Windows
+# Executa na RAIZ do projeto (cria .github/sdd/)
+# Uso: cd seu-projeto && make -f ../base-sdd/Makefile init
 init:
 	@echo "$(BLUE)╔════════════════════════════════════════════════════════════╗$(NC)"
 	@echo "$(BLUE)║      SDD Init — Simples, Rápido, Agnóstico                 ║$(NC)"
+	@echo "$(BLUE)║      Executando em: $(shell pwd)                         ║$(NC)"
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)"
 	@echo ""
 	@bash $(dir $(realpath $(lastword $(MAKEFILE_LIST))))/scripts/init-context.sh

@@ -18,68 +18,54 @@ O projeto oferece:
 
 ## 🚀 Quick Start
 
-### 1. Clone o repositório
+### 1. Clone o repositório (uma única vez)
 
 ```bash
 git clone https://github.com/gustavofleck/base-sdd.git
-cd base-sdd
 ```
 
 ### 2. Passo 1 — Init (Simples & Rápido)
 
+**Na raiz do seu projeto:**
+
 ```bash
-# Modo interativo — criar novo contexto genérico
-make init
+cd seu-projeto
+make -f ../base-sdd/Makefile init
+
+# Ou no Windows (PowerShell):
+.\scripts\init-context.ps1
 ```
 
-Respostas esperadas:
-```
-Nome do projeto (ex: meu-app): my-project
-Descrição breve (ex: Aplicação de tarefas): Minha aplicação
-```
-
-**Resultado:** Nova pasta criada **UMA NÍVEL ACIMA do clone** com estrutura SDD genérica:
+**Resultado:** Estrutura SDD criada **dentro** do seu projeto:
 
 ```
-../
-├── my-project/                 ← Novo contexto criado aqui
-│   ├── .sdd/
-│   │   ├── agents/             ← Genéricos
-│   │   │   ├── orchestrator.md
-│   │   │   ├── feature-writer.md
-│   │   │   ├── architect.md
-│   │   │   ├── coder.md
-│   │   │   ├── tester.md
-│   │   │   └── specialist.md   ← Ferramenta para especializar
-│   │   ├── skills/             ← Genéricos
-│   │   ├── docs/               ← Templates genéricos
-│   │   └── sdd-config.yaml     ← AGNÓSTICO
-│   ├── copilot-instructions.md
-│   └── ... (seus arquivos de projeto)
-├── base-sdd/                   ← Clone do GitHub
-│   ├── Makefile
-│   ├── README.md
-│   └── scripts/
+seu-projeto/
+├── .github/
+│   └── sdd/
+│       ├── agents/              ← Agentes (genéricos)
+│       ├── skills/              ← Skills (reutilizáveis)
+│       ├── docs/                ← Documentação (templates)
+│       └── sdd-config.yaml      ← Configuração (agnóstica)
+├── copilot-instructions.md      ← Instruções
+└── ... (seu código)
 ```
 
 ### 3. Passo 2 — Specialize (Customização para Tecnologia)
 
 ```bash
-cd ../my-project
-
-# Especializar para sua tecnologia
+# Ainda na raiz do projeto
 make -f ../base-sdd/Makefile specialize TECH=react
 # Opções: react, node, android, flutter, custom
 ```
 
 Isto irá:
-- ✅ Customizar `sdd-config.yaml` com tech stack específico
+- ✅ Customizar `.github/sdd/sdd-config.yaml` com tech stack específico
 - ✅ Especializar agentes (feature-writer, architect, coder, tester) para sua tech
 - ✅ Customizar skills (ci/cd, testing, etc)
 - ✅ Gerar documentação tech-specific (tech-stack.md, architecture.md, etc)
-- ✅ Criar `README-specialization.md` documentando tudo
+- ✅ Criar `.github/sdd/README-specialization.md` documentando tudo
 
-> **Nota**: Especialização automatizada está em desenvolvimento. Atualmente mostra instruções (leia `.sdd/specialist.md`).
+> **Nota**: Especialização automatizada está em desenvolvimento. Atualmente mostra instruções (leia `.github/sdd/specialist.md`).
 
 ### 4. Validar e usar
 
@@ -97,9 +83,9 @@ make -f ../base-sdd/Makefile resolve DIR=.
 Ou com Python diretamente:
 
 ```bash
-python ../base-sdd/scripts/validate-config.py .sdd/sdd-config.yaml
-python ../base-sdd/scripts/check-integrity.py .sdd
-python ../base-sdd/scripts/resolve-context.py .sdd
+python ../base-sdd/scripts/validate-config.py .github/sdd/sdd-config.yaml
+python ../base-sdd/scripts/check-integrity.py .github/sdd
+python ../base-sdd/scripts/resolve-context.py .github/sdd
 ```
 
 ---

@@ -21,7 +21,7 @@ O projeto oferece:
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/gustavoabelh/base-sdd.git
+git clone https://github.com/gustavofleck/base-sdd.git
 cd base-sdd
 ```
 

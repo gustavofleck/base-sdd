@@ -188,11 +188,13 @@ make check          # Funciona em Windows/macOS/Linux
 
 | SO | Init Script | Recomendado | Setup |
 |----|------------|-----------|-------|
-| **macOS** | `bash init-context.sh` | ✅ | Nada, já vem com tudo |
-| **Linux** | `bash init-context.sh` | ✅ | `sudo apt install make python3` |
-| **Windows (PowerShell)** | `.\init-context.ps1` | ✅ | `choco install python make` |
-| **Windows (Git Bash)** | `bash init-context.sh` | ✅ | Instalar Git for Windows + Make |
-| **Windows (WSL 2)** | `bash init-context.sh` (no WSL) | ✅ | Instalar WSL 2 + distribuição |
+| SO | Init Script | Result | Structure |
+|----|------------|--------|----------|
+| **macOS** | `make -f ../base-sdd/Makefile init` | ✅ | agents/ + .github/sdd/ |
+| **Linux** | `make -f ../base-sdd/Makefile init` | ✅ | agents/ + .github/sdd/ |
+| **Windows (PowerShell)** | `.../base-sdd/scripts/init-context.ps1` | ✅ | agents/ + .github/sdd/ |
+| **Windows (Git Bash)** | `bash ../base-sdd/scripts/init-context.sh` | ✅ | agents/ + .github/sdd/ |
+| **Windows (WSL 2)** | `make -f ../base-sdd/Makefile init` | ✅ | agents/ + .github/sdd/ |
 
 ---
 

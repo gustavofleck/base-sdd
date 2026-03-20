@@ -35,18 +35,22 @@ $CONTEXT_DIR = Get-Location
 Log-Info "Inicializando SDD em: $CONTEXT_DIR"
 Log-Info "Contexto: $CONTEXT_NAME"
 
-# Criar .github/sdd se não existir
-Log-Info "Criando estrutura em .github/sdd/"
-@('.github/sdd/agents', '.github/sdd/skills', '.github/sdd/docs') | ForEach-Object {
+# Criar .github/{agents,sdd} se não existirem
+Log-Info "Criando estrutura em .github/"
+@('.github/agents', '.github/sdd/skills', '.github/sdd/docs') | ForEach-Object {
     New-Item -ItemType Directory -Path "$CONTEXT_DIR/$_" -Force -ErrorAction SilentlyContinue | Out-Null
 }
-Log-Ok ".github/sdd/ criado"
+Log-Ok ".github/ criado"
 
 # Copiar arquivos base
 Log-Info "Copiando arquivos base..."
 @('agents', 'skills', 'docs') | ForEach-Object {
     try {
-        Copy-Item "$($env:BASE_SDD_DIR)/$_/*.md" "$CONTEXT_DIR/.github/sdd/$_/" -ErrorAction SilentlyContinue
+        if ($_ -eq 'agents') {
+            Copy-Item "$($env:BASE_SDD_DIR)/$_/*.md" "$CONTEXT_DIR/.github/$_/" -ErrorAction SilentlyContinue
+        } else {
+            Copy-Item "$($env:BASE_SDD_DIR)/$_/*.md" "$CONTEXT_DIR/.github/sdd/$_/" -ErrorAction SilentlyContinue
+        }
     } catch {
         Log-Warn "Nenhum arquivo $_ encontrado"
     }
@@ -61,13 +65,13 @@ if (Test-Path "$($env:BASE_SDD_DIR)/sdd-config-base.yaml") {
 
 # Copiar specialist-base.md
 if (Test-Path "$($env:BASE_SDD_DIR)/agents/specialist-base.md") {
-    Copy-Item "$($env:BASE_SDD_DIR)/agents/specialist-base.md" "$CONTEXT_DIR/.github/sdd/agents/"
+    Copy-Item "$($env:BASE_SDD_DIR)/agents/specialist-base.md" "$CONTEXT_DIR/.github/agents/"
     Log-Ok "specialist-base.md copiado"
 }
 
 # Renomear -base.md para .md
 Log-Info "Finalizando nomes de arquivos..."
-Get-ChildItem -Path "$CONTEXT_DIR/.github/sdd" -Filter "*-base.md" -Recurse | ForEach-Object {
+Get-ChildItem -Path "$CONTEXT_DIR/.github" -Filter "*-base.md" -Recurse | ForEach-Object {
     $newName = $_.Name -replace "-base.md", ".md"
     Rename-Item -Path $_.FullName -NewName $newName
 }
@@ -81,6 +85,14 @@ $content = $content -replace "your-project-name", $CONTEXT_NAME
 $content = $content -replace "Descrição breve do seu projeto", $CONTEXT_NAME
 Set-Content -Path $configFile -Value $content -Encoding UTF8
 Log-Ok "sdd-config.yaml customizado"
+
+Log-Info "Customizando agents..."
+Get-ChildItem -Path "$CONTEXT_DIR/.github/agents" -Filter "*.md" | ForEach-Object {
+    $content = Get-Content $_.FullName -Raw
+    $content = $content -replace "your-project-name", $CONTEXT_NAME
+    Set-Content -Path $_.FullName -Value $content -Encoding UTF8
+}
+Log-Ok "agents customizados"
 $content = $content -replace "Descrição breve do seu projeto", $CONTEXT_NAME
 Set-Content -Path $configFile -Value $content -Encoding UTF8
 Log-Ok "sdd-config.yaml customizado"
@@ -129,19 +141,19 @@ $copilotContent = @'
 ## Fluxo Obrigatório
 
 1. **Verificar Especialização**: Veja `.github/sdd/README-specialization.md` para confirmar tecnologias específicas
-2. **Carregar Orchestrator**: Sempre comece por `.github/sdd/agents/orchestrator.md`
+2. **Carregar Orchestrator**: Sempre comece por `.github/agents/orchestrator.md`
 3. **Seguir Fluxo de Decisão**: Classifique a tarefa (feature / bugfix / refactor / test)
 4. **Usar Agentes Apropriados**: Feature Writer → Architect → Coder → Tester → PR Agent
 5. **Validar Antes de Commit**: Siga guidelines em `.github/sdd/docs/`
 
 ## Agentes Disponíveis
 
-- **orchestrator.md** — Orquestra todo o fluxo (carregue primeiro!)
-- **feature-writer.md** — Especifica features/requisitos
-- **architect.md** — Valida design e arquitetura
-- **coder.md** — Implementa código
-- **tester.md** — Design de testes dados-quando-então
-- **pr-agent.md** — Submete PR (ainda não criado)
+- **.github/agents/orchestrator.md** — Orquestra todo o fluxo (carregue primeiro!)
+- **.github/agents/feature-writer.md** — Especifica features/requisitos
+- **.github/agents/architect.md** — Valida design e arquitetura
+- **.github/agents/coder.md** — Implementa código
+- **.github/agents/tester.md** — Design de testes dados-quando-então
+- **.github/agents/pr-agent.md** — Submete PR (ainda não criado)
 
 ## Próximo Passo
 
@@ -162,11 +174,11 @@ Write-Host ""
 Log-Ok "✅ SDD inicializado em: $CONTEXT_DIR"
 Log-Info ""
 Log-Info "Estrutura criada:"
-Log-Info "  .github/sdd/agents/        ← Agentes"
-Log-Info "  .github/sdd/skills/        ← Skills"
-Log-Info "  .github/sdd/docs/          ← Documentação"
+Log-Info "  .github/agents/           ← Agentes"
+Log-Info "  .github/sdd/skills/       ← Skills"
+Log-Info "  .github/sdd/docs/         ← Documentação"
 Log-Info "  .github/sdd/sdd-config.yaml ← Configuração"
-Log-Info "  copilot-instructions.md    ← Instruções (raiz)"
+Log-Info "  copilot-instructions.md   ← Instruções (raiz)"
 Log-Info ""
 Log-Info "Próximos passos:"
 Log-Info "  1. Especializar: make -f ../base-sdd/Makefile specialize TECH=<react|node|android|flutter|custom>"

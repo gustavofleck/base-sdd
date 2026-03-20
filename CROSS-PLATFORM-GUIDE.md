@@ -190,11 +190,11 @@ make check          # Funciona em Windows/macOS/Linux
 |----|------------|-----------|-------|
 | SO | Init Script | Result | Structure |
 |----|------------|--------|----------|
-| **macOS** | `make -f ../base-sdd/Makefile init` | ✅ | .github/sdd/agents/ |
-| **Linux** | `make -f ../base-sdd/Makefile init` | ✅ | .github/sdd/agents/ |
-| **Windows (PowerShell)** | `.../base-sdd/scripts/init-context.ps1` | ✅ | .github/sdd/agents/ |
-| **Windows (Git Bash)** | `bash ../base-sdd/scripts/init-context.sh` | ✅ | .github/sdd/agents/ |
-| **Windows (WSL 2)** | `make -f ../base-sdd/Makefile init` | ✅ | .github/sdd/agents/ |
+| **macOS** | `make -f ../base-sdd/Makefile init` | ✅ | .github/agents/ + .github/sdd/ |
+| **Linux** | `make -f ../base-sdd/Makefile init` | ✅ | .github/agents/ + .github/sdd/ |
+| **Windows (PowerShell)** | `.../base-sdd/scripts/init-context.ps1` | ✅ | .github/agents/ + .github/sdd/ |
+| **Windows (Git Bash)** | `bash ../base-sdd/scripts/init-context.sh` | ✅ | .github/agents/ + .github/sdd/ |
+| **Windows (WSL 2)** | `make -f ../base-sdd/Makefile init` | ✅ | .github/agents/ + .github/sdd/ |
 
 ---
 

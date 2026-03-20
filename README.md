@@ -41,12 +41,12 @@ make -f ../base-sdd/Makefile init
 ```
 seu-projeto/
 ├── .github/
+│   ├── agents/              ← Agentes (genéricos)
 │   └── sdd/
-│       ├── agents/              ← Agentes (genéricos)
-│       ├── skills/              ← Skills (reutilizáveis)
-│       ├── docs/                ← Documentação (templates)
-│       └── sdd-config.yaml      ← Configuração (agnóstica)
-├── copilot-instructions.md      ← Instruções
+│       ├── skills/          ← Skills (reutilizáveis)
+│       ├── docs/            ← Documentação (templates)
+│       └── sdd-config.yaml  ← Configuração (agnóstica)
+├── copilot-instructions.md  ← Instruções
 └── ... (seu código)
 ```
 

@@ -25,23 +25,35 @@ git clone https://github.com/gustavofleck/base-sdd.git
 cd base-sdd
 ```
 
-### 2. Criar um novo contexto
+### 2. Passo 1 — Init (Simples & Rápido)
 
 ```bash
-# Modo interativo
+# Modo interativo — criar novo contexto genérico
 make init
 ```
 
-**Resultado:** Nova pasta criada **UMA NÍVEL ACIMA do clone** com estrutura SDD pronta:
+Respostas esperadas:
+```
+Nome do projeto (ex: meu-app): my-project
+Descrição breve (ex: Aplicação de tarefas): Minha aplicação
+```
+
+**Resultado:** Nova pasta criada **UMA NÍVEL ACIMA do clone** com estrutura SDD genérica:
 
 ```
 ../
 ├── my-project/                 ← Novo contexto criado aqui
 │   ├── .sdd/
-│   │   ├── agents/
-│   │   ├── skills/
-│   │   ├── docs/
-│   │   └── sdd-config.yaml
+│   │   ├── agents/             ← Genéricos
+│   │   │   ├── orchestrator.md
+│   │   │   ├── feature-writer.md
+│   │   │   ├── architect.md
+│   │   │   ├── coder.md
+│   │   │   ├── tester.md
+│   │   │   └── specialist.md   ← Ferramenta para especializar
+│   │   ├── skills/             ← Genéricos
+│   │   ├── docs/               ← Templates genéricos
+│   │   └── sdd-config.yaml     ← AGNÓSTICO
 │   ├── copilot-instructions.md
 │   └── ... (seus arquivos de projeto)
 ├── base-sdd/                   ← Clone do GitHub
@@ -50,31 +62,44 @@ make init
 │   └── scripts/
 ```
 
-### 3. Validar e usar
-
-```bash
-# Dentro do novo contexto (../my-project/)
-
-# Validar configuração YAML
-python ../base-sdd/scripts/validate-config.py .sdd/sdd-config.yaml
-
-# Verificar integridade (tags, docs, etc)
-python ../base-sdd/scripts/check-integrity.py .sdd
-
-# Resolver herança (merge base + customizações)
-python ../base-sdd/scripts/resolve-context.py .sdd
-
-# Integrar no seu projeto
-cp -r .sdd/* /seu/repo/.sdd
-```
-
-Ou execute tudo de uma vez:
+### 3. Passo 2 — Specialize (Customização para Tecnologia)
 
 ```bash
 cd ../my-project
+
+# Especializar para sua tecnologia
+make -f ../base-sdd/Makefile specialize TECH=react
+# Opções: react, node, android, flutter, custom
+```
+
+Isto irá:
+- ✅ Customizar `sdd-config.yaml` com tech stack específico
+- ✅ Especializar agentes (feature-writer, architect, coder, tester) para sua tech
+- ✅ Customizar skills (ci/cd, testing, etc)
+- ✅ Gerar documentação tech-specific (tech-stack.md, architecture.md, etc)
+- ✅ Criar `README-specialization.md` documentando tudo
+
+> **Nota**: Especialização automatizada está em desenvolvimento. Atualmente mostra instruções (leia `.sdd/specialist.md`).
+
+### 4. Validar e usar
+
+```bash
+# Validar configuração YAML
 make -f ../base-sdd/Makefile validate DIR=.
+
+# Verificar integridade (tags, docs, etc)
 make -f ../base-sdd/Makefile check DIR=.
+
+# Resolver herança (merge base + customizações)
 make -f ../base-sdd/Makefile resolve DIR=.
+```
+
+Ou com Python diretamente:
+
+```bash
+python ../base-sdd/scripts/validate-config.py .sdd/sdd-config.yaml
+python ../base-sdd/scripts/check-integrity.py .sdd
+python ../base-sdd/scripts/resolve-context.py .sdd
 ```
 
 ---
@@ -102,16 +127,15 @@ base-sdd/
 │
 └── base-sdd/                   # Estrutura base (agnóstica)
     ├── agents/                 # 8 agentes especializados
-    │   ├── orchestrator-base.md
-    │   ├── feature-writer-base.md
-    │   ├── designer-base.md
-    │   ├── planner-base.md
-    │   ├── architect-base.md
-    │   ├── coder-base.md
-    │   ├── tester-base.md
-    │   └── pr-agent-base.md
+    │   ├── orchestrator-base.md     # Orquestra todo o fluxo
+    │   ├── feature-writer-base.md   # Especifica features/requisitos
+    │   ├── architect-base.md        # Valida design e arquitetura
+    │   ├── coder-base.md            # Implementa código
+    │   ├── tester-base.md           # Desenha testes (Given-When-Then)
+    │   ├── pr-agent-base.md         # Submete pull requests
+    │   └── specialist-base.md       # Especializa estrutura para tech
     │
-    ├── skills/                 # 6 skills reutilizáveis
+    ├── skills/                 # 6 skills reutilizáveis (carregados sob demanda)
     │   ├── git-workflow-base.md
     │   ├── code-architecture-base.md
     │   ├── code-review-base.md
@@ -119,18 +143,46 @@ base-sdd/
     │   ├── testing-strategy-base.md
     │   └── pr-creation-base.md
     │
-    ├── docs/                   # 5 docs base
+    ├── docs/                   # Documentação genérica
     │   ├── project-context-base.md
+    │   ├── agents-vs-skills.md
     │   ├── architecture-base.md
-    │   ├── features-base.md
-    │   ├── tech-stack-base.md
+    │   ├── specifications-base.md
+    │   ├── guidelines-base.md
     │   └── glossary-base.md
     │
-    └── templates/              # Templates de exemplo
-        ├── rateapp-android/    # Contexto especializado (Kotlin + MVI)
-        ├── example-react/      # Contexto especializado (React + Redux)
-        └── example-node/       # Contexto especializado (Node.js + Event-Driven)
+    └── sdd-config-base.yaml    # Template de configuração (agnóstico)
 ```
+
+---
+
+## 🔄 Workflow: 2 Passos Simples
+
+### Passo 1: Init (Genérico)
+```bash
+$ make init
+→ Nome projeto + Descrição
+→ Estrutura base criada (agnóstica)
+→ ~2 segundos
+```
+
+### Passo 2: Specialize (Tecnologia)
+```bash
+$ cd projeto
+$ make -f ../base-sdd/Makefile specialize TECH=react
+→ Customização para React
+→ Agentes especializados
+→ Docs tech-specific
+→ ~1 minuto (manual, depois automatizado)
+```
+
+**Resultado Final:**
+- ✅ Estrutura pronta para sua tecnologia
+- ✅ Agentes com padrões específicos
+- ✅ Documentação atualizada
+- ✅ Pronto para usar com GitHub Copilot
+
+Veja [INIT-FLOW-REFACTORED.md](./INIT-FLOW-REFACTORED.md) para mais detalhes.
 
 ---
 
@@ -162,38 +214,41 @@ Arquivos `-base.md` contêm:
 const MyComponent = () => { ... }
 ```
 
-### 2. **Especialização** (para seu contexto)
+### 2. **Especialização** (via Specialist Agent)
 
-`init-context.sh` faz:
+`specialist-base.md` guia:
 
 ```bash
-1. ✅ Copiar base-sdd/* para seu .sdd/
-2. ✅ Remover tags [GENÉRICO]/[ESPECIALIZAÇÃO]/[EXEMPLO:xxx]
-3. ✅ Gerar sdd-config.yaml (stack-specific)
-4. ✅ Criar copilot-instructions.md
+1. ✅ Coletar inputs (tech, language, testing framework, etc)
+2. ✅ Customizar sdd-config.yaml com tech stack
+3. ✅ Remover tags [ESPECIALIZAÇÃO] dos agentes
+4. ✅ Especializar agentes para sua tech
+5. ✅ Customizar skills (CI/CD, testing, etc)
+6. ✅ Gerar docs tech-specific
+7. ✅ Criar README-specialization.md
 ```
 
-Resultado: `.sdd/` pronto para customização
+Resultado: `.sdd/` 100% customizado para sua tecnologia
 
 ### 3. **Validação** 
 
 ```bash
 # Schema YAML
-validate-config.py
+make validate DIR=.
 
 # Integridade
-check-integrity.py
+make check DIR=.
     ├─ Tags [GENÉRICO] removidas?
     ├─ Docs referenciadas existem?
     ├─ Exemplos de código no language correto?
     └─ Padrão arquitetural documentado?
 ```
 
-### 4. **Herança** (Phase 3+)
+### 4. **Herança** (resolve + merge)
 
 ```bash
 # Merge base + contexto com semântica
-resolve-context.py
+make resolve DIR=.
     ├─ Load agents-base.md + agents.md
     ├─ Merge [GENÉRICO] + [ESPECIALIZAÇÃO]
     └─ Output: .sdd-resolved/ (final)
@@ -204,15 +259,17 @@ resolve-context.py
 ## 🛠 Ferramentas (Makefile)
 
 ```bash
-# Criar novo contexto
-make init                # Interativo
-make init-android        # Android com prompt
-make init-react          # React com prompt
-make init-node           # Node.js com prompt
+# Passo 1: Criar novo contexto (genérico)
+make init                # Interativo, cria estrutura agnóstica
+
+# Passo 2: Especializar para tecnologia
+make specialize TECH=react           # Opções: react, node, android, flutter, custom
+make specialize TECH=node
+make specialize TECH=android
 
 # Validar contexto (interno ou externo)
 make validate            # Valida ./.sdd/sdd-config.yaml
-make validate DIR=../my-project   # Valida ../my-project/.sdd/
+make validate DIR=../my-project      # Valida ../my-project/.sdd/
 
 # Verificar integridade
 make check               # Verifica ./.sdd/
@@ -226,6 +283,12 @@ make resolve DIR=../my-project
 make clean               # Remove .sdd-resolved/ de todos contextos
 
 # Help
+make help                # Mostra todos os targets
+```
+
+**Diferença entre Passo 1 e 2:**
+- **Passo 1 (init)**: Agnóstico, rápido, genérico para qualquer tech
+- **Passo 2 (specialize)**: Tech-specific, customiza agentes + skills + docs
 make help                # Mostra todos targets
 ```
 
@@ -233,34 +296,28 @@ make help                # Mostra todos targets
 
 ## 📦 Stacks Suportados
 
-### Android
-- **Language:** Kotlin
-- **Architecture:** Clean Architecture + MVI
-- **UI Framework:** Jetpack Compose
-- **State Management:** MVI Pattern
-- **Testing:** JUnit + Mockk
+Baseado no novo workflow, **qualquer stack é suportado**:
 
-### React
-- **Language:** TypeScript
-- **Architecture:** Clean Architecture
-- **Framework:** React 18+
-- **State Management:** Redux
-- **Testing:** Jest + React Testing Library
+- ✅ **React** — Vite + TypeScript + Redux
+- ✅ **Node.js** — Express + TypeScript
+- ✅ **Android** — Kotlin + Compose
+- ✅ **Flutter** — Dart + Provider/Riverpod
+- ✅ **Fast API** — Python + async/await
+- ✅ **Custom** — Qualquer combinação
 
-### Node.js
-- **Language:** TypeScript
-- **Architecture:** Clean Architecture + Event-Driven
-- **Framework:** Express
-- **State Management:** Event-Driven Pattern
-- **Testing:** Jest + Supertest
+**Como usar:**
+```bash
+make init                           # Estrutura genérica
+make specialize TECH=seu-stack      # Customizar para sua tech
+```
 
-### Custom
-Customize para qualquer stack (Python, Go, Rust, etc)
+O agente **Specialist** guia a customização para qualquer stack!
 
 ---
 
 ## 📚 Documentação Completa
 
+- **[INIT-FLOW-REFACTORED.md](./INIT-FLOW-REFACTORED.md)** — Novo workflow de 2 passos (init + specialize)
 - **[GENERALIZATION-GUIDE.md](./docs/GENERALIZATION-GUIDE.md)** — Como especializar base-sdd para seu stack
 - **[INHERITANCE-PATTERNS.md](./docs/INHERITANCE-PATTERNS.md)** — Quais skills são 100% reutilizáveis vs 60% vs 0%
 - **[MARKETPLACE.md](./docs/MARKETPLACE.md)** — Plano para Phase 3 (descobrir + instalar contextos)
@@ -270,48 +327,54 @@ Customize para qualquer stack (Python, Go, Rust, etc)
 
 ## 🧪 Exemplos de Uso
 
-### Exemplo 1: Android App
+### Exemplo 1: React App
 
 ```bash
+# Passo 1: Init
 cd base-sdd
-make init-android
+make init
 
-# Prompt: "Context name: rateapp-android"
-# Result: ../rateapp-android/.sdd/ criado
+# Respostas:
+#   Nome: meu-app
+#   Desc: Minha aplicação React
 
-cd ../rateapp-android
-python ../base-sdd/scripts/validate-config.py .sdd/sdd-config.yaml
-python ../base-sdd/scripts/check-integrity.py .sdd
+# Passo 2: Specialize
+cd ../meu-app
+make -f ../base-sdd/Makefile specialize TECH=react
 
-# Customizar docs/
-# - .sdd/docs/project-context.md
-# - .sdd/docs/architecture.md
-# - .sdd/docs/tech-stack.md
-
-# Usar em seu projeto
-cp -r .sdd/* ~/AndroidStudioProjects/rateapp/.sdd/
+# Resultado:
+#   ✅ sdd-config.yaml customizado para React
+#   ✅ Agentes especializados (Redux patterns, etc)
+#   ✅ Skills tech-specific (jest + lint checks)
+#   ✅ README-specialization.md criado
 ```
 
-### Exemplo 2: React App
-
+Depois, use com GitHub Copilot:
 ```bash
-cd base-sdd
-make init-react
-
-# Prompt: "Context name: my-frontend"
-# Result: ../my-frontend/.sdd/ criado
-
-cd ../my-frontend
-# Customizar agents/coder.md com React + TypeScript exemplos
-# Customizar skills/code-arch.md com Redux patterns
+# Dentro do projeto
+copilot /feat "Nova página de login"
 ```
 
-### Exemplo 3: Validar tudo
+### Exemplo 2: Node.js API
 
 ```bash
 cd base-sdd
-make validate-all
-# Valida todos ../*/sdd-config.yaml + integridade
+make init
+# → meu-api
+
+cd ../meu-api
+make -f ../base-sdd/Makefile specialize TECH=node
+```
+
+### Exemplo 3: Android App
+
+```bash
+cd base-sdd
+make init
+# → meu-app-android
+
+cd ../meu-app-android
+make -f ../base-sdd/Makefile specialize TECH=android
 ```
 
 ---
